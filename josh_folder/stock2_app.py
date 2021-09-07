@@ -7,7 +7,8 @@ from dash.dependencies import Input, Output
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
-
+from keras.models import Sequential
+from keras.layers import LSTM,Dropout,Dense
 
 app = dash.Dash()
 server = app.server
@@ -69,7 +70,6 @@ train=new_data[:987]
 valid=new_data[987:]
 valid['Predictions']=closing_price
 
-
 # ------- MSFT ------
 
 df_msft = pd.read_csv("data/MSFT.csv")
@@ -125,9 +125,115 @@ msft_train=new_msft_data[:987]
 msft_valid=new_msft_data[987:]
 msft_valid['Predictions']=closing_price_msft
 
-# -------- Tesla -------
+# -------- Tesla ----------
+
+df_tsla = pd.read_csv("data/TSLA.csv")
+
+df_tsla["Date"]=pd.to_datetime(df_tsla.Date,format="%Y-%m-%d")
+df_tsla.index=df_tsla['Date']
 
 
+tsla_data=df_tsla.sort_index(ascending=True,axis=0)
+new_tsla_data=pd.DataFrame(index=range(0,len(df_tsla)),columns=['Date','Close'])
+
+for i in range(0,len(tsla_data)):
+    new_tsla_data["Date"][i]=tsla_data['Date'][i]
+    new_tsla_data["Close"][i]=tsla_data["Close"][i]
+
+new_tsla_data.index=new_tsla_data.Date
+new_tsla_data.drop("Date",axis=1,inplace=True)
+
+tsla_dataset=new_tsla_data.values
+
+tsla_train=tsla_dataset[0:987,:]
+tsla_valid=tsla_dataset[987:,:]
+
+tsla_scaler=MinMaxScaler(feature_range=(0,1))
+scaled_tsla_data=tsla_scaler.fit_transform(tsla_dataset)
+
+x_tsla_train,y_tsla_train=[],[]
+
+for i in range(60,len(train)):
+    x_tsla_train.append(scaled_tsla_data[i-60:i,0])
+    y_tsla_train.append(scaled_tsla_data[i,0])
+    
+x_tsla_train,y_tsla_train=np.array(x_tsla_train),np.array(y_tsla_train)
+
+x_tsla_train=np.reshape(x_tsla_train,(x_tsla_train.shape[0],x_tsla_train.shape[1],1))
+
+tsla_model=load_model("jupyter_notebooks/tsla_lstm_model.h5")
+
+tsla_inputs=new_tsla_data[len(new_tsla_data)-len(valid)-60:].values
+tsla_inputs=tsla_inputs.reshape(-1,1)
+tsla_inputs=tsla_scaler.transform(tsla_inputs)
+
+X_tsla_test=[]
+for i in range(60,tsla_inputs.shape[0]):
+    X_tsla_test.append(tsla_inputs[i-60:i,0])
+X_tsla_test=np.array(X_tsla_test)
+
+X_tsla_test=np.reshape(X_tsla_test,(X_tsla_test.shape[0],X_tsla_test.shape[1],1))
+closing_price_tsla=tsla_model.predict(X_tsla_test)
+closing_price_tsla=tsla_scaler.inverse_transform(closing_price_tsla)
+
+tsla_train=new_tsla_data[:987]
+tsla_valid=new_tsla_data[987:]
+tsla_valid['Predictions']=closing_price_tsla
+
+# -------- Twitter --------
+
+df_twtr = pd.read_csv("data/TWTR.csv")
+
+df_twtr["Date"]=pd.to_datetime(df_twtr.Date,format="%Y-%m-%d")
+df_twtr.index=df_twtr['Date']
+
+
+twtr_data=df_twtr.sort_index(ascending=True,axis=0)
+new_twtr_data=pd.DataFrame(index=range(0,len(df_twtr)),columns=['Date','Close'])
+
+for i in range(0,len(twtr_data)):
+    new_twtr_data["Date"][i]=twtr_data['Date'][i]
+    new_twtr_data["Close"][i]=twtr_data["Close"][i]
+
+new_twtr_data.index=new_twtr_data.Date
+new_twtr_data.drop("Date",axis=1,inplace=True)
+
+twtr_dataset=new_twtr_data.values
+
+twtr_train=twtr_dataset[0:987,:]
+twtr_valid=twtr_dataset[987:,:]
+
+twtr_scaler=MinMaxScaler(feature_range=(0,1))
+scaled_twtr_data=twtr_scaler.fit_transform(twtr_dataset)
+
+x_twtr_train,y_twtr_train=[],[]
+
+for i in range(60,len(train)):
+    x_twtr_train.append(scaled_twtr_data[i-60:i,0])
+    y_twtr_train.append(scaled_twtr_data[i,0])
+    
+x_twtr_train,y_twtr_train=np.array(x_twtr_train),np.array(y_twtr_train)
+
+x_twtr_train=np.reshape(x_twtr_train,(x_twtr_train.shape[0],x_twtr_train.shape[1],1))
+
+twtr_model=load_model("jupyter_notebooks/twtr_lstm_model.h5")
+
+twtr_inputs=new_twtr_data[len(new_twtr_data)-len(valid)-60:].values
+twtr_inputs=twtr_inputs.reshape(-1,1)
+twtr_inputs=twtr_scaler.transform(twtr_inputs)
+
+X_twtr_test=[]
+for i in range(60,twtr_inputs.shape[0]):
+    X_twtr_test.append(twtr_inputs[i-60:i,0])
+X_twtr_test=np.array(X_twtr_test)
+
+X_twtr_test=np.reshape(X_twtr_test,(X_twtr_test.shape[0],X_twtr_test.shape[1],1))
+closing_price_twtr=twtr_model.predict(X_twtr_test)
+closing_price_twtr=twtr_scaler.inverse_transform(closing_price_twtr)
+
+twtr_train=new_twtr_data[:987]
+twtr_valid=new_twtr_data[987:]
+twtr_valid['Predictions']=closing_price_twtr
 
 # ----- All Stocks ------
 
@@ -215,6 +321,51 @@ app.layout = html.Div([
 							go.Scatter(
 								x=msft_valid.index,
 								y=msft_valid["Predictions"],
+								mode='markers'
+							)
+
+						],
+						"layout":go.Layout(
+							title='scatter plot',
+							xaxis={'title':'Date'},
+							yaxis={'title':'Closing Rate'}
+						)
+					}
+
+				)				
+			])
+        ]),
+
+        dcc.Tab(label='Tesla Stock Data',children=[
+			html.Div([
+				html.H2("TSLA Actual closing price",style={"textAlign": "center"}),
+				dcc.Graph(
+					id="TSLA Data",
+					figure={
+						"data":[
+							go.Scatter(
+								x=tsla_valid.index,
+								y=df_tsla["Close"],
+								mode='markers'
+							)
+
+						],
+						"layout":go.Layout(
+							title='scatter plot',
+							xaxis={'title':'Date'},
+							yaxis={'title':'Closing Rate'}
+						)
+					}
+
+				),
+				html.H2("LSTM TSLA Predicted Closing Price",style={"textAlign": "center"}),
+				dcc.Graph(
+					id="TSLA Predicted Data",
+					figure={
+						"data":[
+							go.Scatter(
+								x=tsla_valid.index,
+								y=tsla_valid["Predictions"],
 								mode='markers'
 							)
 
