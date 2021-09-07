@@ -381,6 +381,51 @@ app.layout = html.Div([
 			])
         ]),
 
+		dcc.Tab(label='Twitter Stock Data',children=[
+			html.Div([
+				html.H2("TWTR Actual closing price",style={"textAlign": "center"}),
+				dcc.Graph(
+					id="TWTR Data",
+					figure={
+						"data":[
+							go.Scatter(
+								x=twtr_valid.index,
+								y=df_twtr["Close"],
+								mode='markers'
+							)
+
+						],
+						"layout":go.Layout(
+							title='scatter plot',
+							xaxis={'title':'Date'},
+							yaxis={'title':'Closing Rate'}
+						)
+					}
+
+				),
+				html.H2("LSTM TWTR Predicted Closing Price",style={"textAlign": "center"}),
+				dcc.Graph(
+					id="TWTR Predicted Data",
+					figure={
+						"data":[
+							go.Scatter(
+								x=twtr_valid.index,
+								y=twtr_valid["Predictions"],
+								mode='markers'
+							)
+
+						],
+						"layout":go.Layout(
+							title='scatter plot',
+							xaxis={'title':'Date'},
+							yaxis={'title':'Closing Rate'}
+						)
+					}
+
+				)				
+			])
+        ]),
+
         dcc.Tab(label='Microsoft Stock Data', children=[
             html.Div([
                 html.H1("Stocks High vs Lows", 
