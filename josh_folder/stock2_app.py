@@ -426,7 +426,7 @@ app.layout = html.Div([
 			])
         ]),
 
-        dcc.Tab(label='Microsoft Stock Data', children=[
+        dcc.Tab(label='Actual Stock Data', children=[
             html.Div([
                 html.H1("Stocks High vs Lows", 
                         style={'textAlign': 'center'}),
@@ -459,8 +459,6 @@ app.layout = html.Div([
 ])
 
 
-
-
 @app.callback(Output('highlow', 'figure'),
               [Input('my-dropdown', 'value')])
 def update_graph(selected_dropdown):
@@ -469,13 +467,13 @@ def update_graph(selected_dropdown):
     trace2 = []
     for stock in selected_dropdown:
         trace1.append(
-          go.Scatter(x=df[df["Stock"] == stock]["Date"],
-                     y=df[df["Stock"] == stock]["High"],
+          go.Scatter(x=df[df["ticker"] == stock]["Date"],
+                     y=df[df["ticker"] == stock]["High"],
                      mode='lines', opacity=0.7, 
                      name=f'High {dropdown[stock]}',textposition='bottom center'))
         trace2.append(
-          go.Scatter(x=df[df["Stock"] == stock]["Date"],
-                     y=df[df["Stock"] == stock]["Low"],
+          go.Scatter(x=df[df["ticker"] == stock]["Date"],
+                     y=df[df["ticker"] == stock]["Low"],
                      mode='lines', opacity=0.6,
                      name=f'Low {dropdown[stock]}',textposition='bottom center'))
     traces = [trace1, trace2]
@@ -505,8 +503,8 @@ def update_graph(selected_dropdown_value):
     trace1 = []
     for stock in selected_dropdown_value:
         trace1.append(
-          go.Scatter(x=df[df["Stock"] == stock]["Date"],
-                     y=df[df["Stock"] == stock]["Volume"],
+          go.Scatter(x=df[df["ticker"] == stock]["Date"],
+                     y=df[df["ticker"] == stock]["Volume"],
                      mode='lines', opacity=0.7,
                      name=f'Volume {dropdown[stock]}', textposition='bottom center'))
     traces = [trace1]
