@@ -246,8 +246,8 @@ app.layout = html.Div([
 					figure={
 						"data":[
 							go.Scatter(
-								x=train.index,
-								y=valid["Close"],
+								x=ford_data.index,
+								y=ford_data["Close"],
 								mode='markers'
 							)
 
@@ -260,7 +260,7 @@ app.layout = html.Div([
 					}
 
 				),
-				html.H2("LSTM Predicted closing price",style={"textAlign": "center"}),
+				html.H2("LSTM Ford Predicted closing price",style={"textAlign": "center"}),
 				dcc.Graph(
 					id="Ford Predicted Data",
 					figure={
@@ -307,7 +307,7 @@ app.layout = html.Div([
 					}
 
             ),
-				html.H2("LSTM Predicted closing price",style={"textAlign": "center"}),
+				html.H2("LSTM Amazon Predicted closing price",style={"textAlign": "center"}),
 				dcc.Graph(
 					id="Amazon Predicted Data",
 					figure={
@@ -354,7 +354,7 @@ app.layout = html.Div([
 					}
 
             ),
-				html.H2("LSTM Predicted closing price",style={"textAlign": "center"}),
+				html.H2("LSTM Apple Predicted closing price",style={"textAlign": "center"}),
 				dcc.Graph(
 					id="Apple Predicted Data",
 					figure={
@@ -402,7 +402,7 @@ app.layout = html.Div([
 					}
 
 				),
-				html.H2("LSTM Predicted closing price",style={"textAlign": "center"}),
+				html.H2("LSTM Facebook Predicted closing price",style={"textAlign": "center"}),
 				dcc.Graph(
 					id="Facebook Predicted Data",
 					figure={
