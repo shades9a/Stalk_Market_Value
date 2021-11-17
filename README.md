@@ -18,4 +18,5 @@ We then put all these pieces together by creating a HTML code that would host al
 
 [Stock Final Project](https://shades9a.github.io/final-project/)
 
-
+<img src="./Gain DashBoard.PNG">
+<img src="./Loss DashBoard.PNG">
